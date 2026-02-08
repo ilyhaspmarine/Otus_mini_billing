@@ -64,7 +64,7 @@ minikube tunnel
 
 #### Проверяем health-check (в новом окне терминала)
 ```
-curl http://arch.homework/auth/health/
+curl http://arch.homework/billing/health/
 ```
 
 
