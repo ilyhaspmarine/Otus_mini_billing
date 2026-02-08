@@ -13,12 +13,12 @@ class DbSettings(BaseModel):
     port: str = os.getenv("DB_PORT", "5432")
     database: str = os.getenv("DB_NAME", "billing")
 
-class RollbackJWT(BaseModel):
-    public_key_path: Path =  BASE_DIR /os.getenv("JWT_PUBLIC_PATH", "./etc/keys/rollback/public.pem")
-    algorithm: str = os.getenv("JWT_ALGORITH", "RS256")
+# class RollbackJWT(BaseModel):
+#     public_key_path: Path =  BASE_DIR /os.getenv("JWT_PUBLIC_PATH", "./etc/keys/rollback/public.pem")
+#     algorithm: str = os.getenv("JWT_ALGORITH", "RS256")
 
 class Settings(BaseSettings):
     db: DbSettings = DbSettings()
-    rollback_jwt: RollbackJWT = RollbackJWT()
+    # rollback_jwt: RollbackJWT = RollbackJWT()
 
 settings = Settings()

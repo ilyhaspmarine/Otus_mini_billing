@@ -2,15 +2,14 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from prometheus_fastapi_instrumentator import Instrumentator
 from datetime import datetime
-
 import bill_utils as utils
 from bill_db_schema import Wallet as WalletSchema
 from bill_db import _get_db
-from bill_models import WalletCreate, WalletReturn, TransactionCreate
+from bill_models import WalletCreate, WalletReturn, TransactionCreate, TransactionReturn
 
-import uvicorn
 
 app = FastAPI(title="Billing Service", version="1.0.0")
+
 
 @app.get('/health', summary='HealthCheck EndPoint', tags=['Health Check'])
 def healthcheck():
@@ -38,7 +37,7 @@ async def wallet_create_new(
     )
 
 
-@app.post('/wallet', summary = 'Create new transaction', tags = ['Wallet', 'Transactions'], response_model = WalletReturn, status_code = status.HTTP_201_CREATED)
+@app.post('/wallet', summary = 'Create new transaction', tags = ['Wallet', 'Transactions'], response_model = TransactionReturn, status_code = status.HTTP_201_CREATED)
 async def transaction_create(
     transaction: TransactionCreate,
     db = Depends(_get_db)
@@ -66,10 +65,3 @@ async def get_wallet_balance(
         uname = wallet_state.uname,
         amount = balance
     )
-
-
-
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
-

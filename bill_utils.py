@@ -2,7 +2,7 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func
 from bill_db_schema import Wallet as WalletSchema, Transaction as TransactionSchema
-from bill_models import WalletReturn
+from bill_models import WalletReturn, TransactionReturn
 from datetime import datetime
 from decimal import Decimal
 from uuid import uuid4
@@ -79,9 +79,10 @@ async def process_new_transaction(
             detail = 'Failed to create transaction'
         )
     
-    return WalletReturn(
-        uname = uname,
-        amount = new_balance
+    return TransactionReturn(
+        uname = db_transaction.uname,
+        amount = db_transaction.amount,
+        id = db_transaction.id
     )
 
 async def get_current_balance(

@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from decimal import Decimal
+from uuid import UUID 
 
 class Uname(BaseModel):
     uname: str = Field(..., min_length=1, max_length=100)
@@ -30,7 +31,7 @@ class TransactionCreate(TransactionBase):
     pass
 
 class TransactionReturn(TransactionBase):
-    id: str = Field()
+    id: UUID = Field()
 
     class Config:
         from_attributes = True
