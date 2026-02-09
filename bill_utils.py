@@ -9,23 +9,23 @@ from uuid import uuid4
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
-async def get_wallet_by_uname(
-    uname: str,
+async def get_wallet_by_username(
+    username: str,
     db: AsyncSession
 ):
-    result = await db.execute(select(WalletSchema).filter(WalletSchema.uname == uname))
+    result = await db.execute(select(WalletSchema).filter(WalletSchema.username == username))
     return result.scalar_one_or_none()
 
 
 async def get_balance_delta(
-    uname: str,
+    username: str,
     later_then: datetime,
     db: AsyncSession
 ):
     result = await db.execute(
         select(func.sum(TransactionSchema.amount)).where(
             and_(
-                TransactionSchema.uname == uname,
+                TransactionSchema.username == username,
                 TransactionSchema.datetime > later_then
             )
         )
@@ -35,7 +35,7 @@ async def get_balance_delta(
 
 
 async def process_new_transaction(
-    uname: str,
+    username: str,
     transaction_amount: Decimal,
     db: AsyncSession    
 ):    
@@ -45,7 +45,7 @@ async def process_new_transaction(
             detail = 'No zero amount transactions please!'
         )
 
-    wallet_state = await get_wallet_by_uname(uname, db)
+    wallet_state = await get_wallet_by_username(username, db)
     
     if wallet_state is None:
         raise HTTPException(
@@ -65,7 +65,7 @@ async def process_new_transaction(
     
     db_transaction = TransactionSchema(
         id = uuid4(),
-        uname = uname,
+        username = username,
         amount = transaction_amount,
         datetime = datetime.utcnow()
     )
@@ -80,7 +80,7 @@ async def process_new_transaction(
         )
     
     return TransactionReturn(
-        uname = db_transaction.uname,
+        username = db_transaction.username,
         amount = db_transaction.amount,
         id = db_transaction.id
     )
@@ -89,5 +89,5 @@ async def get_current_balance(
     wallet_state: WalletSchema,
     db: AsyncSession    
 ):
-    balance_delta = await get_balance_delta(wallet_state.uname, wallet_state.actual_at, db)
+    balance_delta = await get_balance_delta(wallet_state.username, wallet_state.actual_at, db)
     return wallet_state.balance + balance_delta

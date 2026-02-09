@@ -11,7 +11,7 @@ class Wallet(Base):
     __tablename__ = 'wallets'
 
     # Uname (первичный ключ, уникальное имя пользователя-владельца кошелька)
-    uname = Column(String, primary_key=True, unique=True, nullable=False)
+    username = Column(String(100), primary_key=True, unique=True, nullable=False)
 
     # Balance (баланс, число со знаком и фиксированной точностью 2 знака после запятой)
     balance = Column(Numeric(precision=15, scale=2), nullable=False)
@@ -27,7 +27,7 @@ class Transaction(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
 
     # Uname (внешний ключ к таблице кошельков)
-    uname = Column(String, ForeignKey('wallets.uname'), nullable=False)
+    username = Column(String(100), ForeignKey('wallets.username'), nullable=False)
 
     # Amount (число со знаком и фиксированной точностью 2 знака после запятой)
     amount = Column(Numeric(precision=15, scale=2), nullable=False)

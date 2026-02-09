@@ -2,15 +2,15 @@ from pydantic import BaseModel, Field
 from decimal import Decimal
 from uuid import UUID 
 
-class Uname(BaseModel):
-    uname: str = Field(..., min_length=1, max_length=100)
+class UserName(BaseModel):
+    username: str = Field(..., min_length=1, max_length=100)
 
 class Amount(BaseModel):
     amount: Decimal = Field(..., max_digits = 15, decimal_places= 2)
 
 
 
-class WalletBase(Uname):
+class WalletBase(UserName):
     pass
 
 class WalletCreate(WalletBase):
@@ -24,7 +24,7 @@ class WalletReturn(WalletBase, Amount):
 
 
 
-class TransactionBase(Uname, Amount):
+class TransactionBase(UserName, Amount):
     pass
 
 class TransactionCreate(TransactionBase):

@@ -22,7 +22,7 @@ async def wallet_create_new(
     db = Depends(_get_db)
 ):
     db_wallet = WalletSchema(
-        uname = wallet.uname,
+        username = wallet.username,
         balance = 0,
         actual_at = datetime.utcnow()
     )
@@ -32,7 +32,7 @@ async def wallet_create_new(
     except IntegrityError:
         raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST, detail = 'User already exists')
     return WalletReturn (
-        uname = db_wallet.uname,
+        username = db_wallet.username,
         amount = db_wallet.balance
     )
 
@@ -42,16 +42,16 @@ async def transaction_create(
     transaction: TransactionCreate,
     db = Depends(_get_db)
 ):
-    result = await utils.process_new_transaction(transaction.uname, transaction.amount, db)
+    result = await utils.process_new_transaction(transaction.username, transaction.amount, db)
     return result
 
 
-@app.get('/wallet/{uname}', summary = 'Get current balance', tags = ['Wallet'], response_model = WalletReturn, status_code = status.HTTP_200_OK)
+@app.get('/wallet/{req_uname}', summary = 'Get current balance', tags = ['Wallet'], response_model = WalletReturn, status_code = status.HTTP_200_OK)
 async def get_wallet_balance(
-    uname: str,
+    req_uname: str,
     db = Depends(_get_db)
 ):
-    wallet_state = await utils.get_wallet_by_uname(uname, db)
+    wallet_state = await utils.get_wallet_by_username(req_uname, db)
     
     if wallet_state is None:
         raise HTTPException(
@@ -62,6 +62,6 @@ async def get_wallet_balance(
     balance = await utils.get_current_balance(wallet_state, db)
     
     return WalletReturn(
-        uname = wallet_state.uname,
+        username = wallet_state.username,
         amount = balance
     )
