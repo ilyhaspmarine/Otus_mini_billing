@@ -37,7 +37,7 @@ async def wallet_create_new(
     )
 
 
-@app.post('/wallet', summary = 'Create new transaction', tags = ['Wallet', 'Transactions'], response_model = TransactionReturn, status_code = status.HTTP_201_CREATED)
+@app.post('/transaction', summary = 'Create new transaction', tags = ['Wallet', 'Transactions'], response_model = TransactionReturn, status_code = status.HTTP_201_CREATED)
 async def transaction_create(
     transaction: TransactionCreate,
     db = Depends(_get_db)
