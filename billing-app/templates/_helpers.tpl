@@ -113,12 +113,3 @@ Create the name of the service account to use
 {{- $releaseName := .Release.Name -}}
 {{- printf "%s-%s" $releaseName "service-monitor" -}}
 {{- end }}
-
-{{/*
-Формирует путь к файлу с открытым ключом подписания JWT
-*/}}
-{{- define "billing-app.jwtPublicPath" -}}
-{{- $mountPath := .Values.jwt.mountPath -}}
-{{- $public := .Values.jwt.public -}}
-{{- printf "%s/%s" $mountPath $public -}}
-{{- end }}

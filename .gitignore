@@ -1,0 +1,7 @@
+./__pycache__/
+./migr/__pycache__/
+./migr/README
+./migr/versions/__pycache__/
+./etc/
+*.pyc
+*.tgz
