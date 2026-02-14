@@ -10,3 +10,4 @@ etc/
 README.md
 .gitignore
 .dockerignore
+openapi
