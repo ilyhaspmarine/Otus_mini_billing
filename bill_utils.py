@@ -9,11 +9,27 @@ from uuid import uuid4
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
+
 async def get_wallet_by_username(
     username: str,
     db: AsyncSession
 ):
-    result = await db.execute(select(WalletSchema).filter(WalletSchema.username == username))
+    result = await db.execute(
+        select(WalletSchema)
+        .filter(WalletSchema.username == username)
+    )
+    return result.scalar_one_or_none()
+
+
+async def get_wallet_by_username_for_update(
+    username: str,
+    db: AsyncSession
+):
+    result = await db.execute(
+        select(WalletSchema)
+        .filter(WalletSchema.username == username)
+        .with_for_update()
+    )
     return result.scalar_one_or_none()
 
 
@@ -45,9 +61,10 @@ async def process_new_transaction(
             detail = 'No zero amount transactions please!'
         )
 
-    wallet_state = await get_wallet_by_username(username, db)
+    wallet_state = await get_wallet_by_username_for_update(username, db)
     
     if wallet_state is None:
+        db.rollback()
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
             detail = 'Billing account not found'
@@ -58,6 +75,7 @@ async def process_new_transaction(
     new_balance = balance + transaction_amount
 
     if new_balance < 0:
+        db.rollback()
         raise HTTPException(
             status_code = status.HTTP_406_NOT_ACCEPTABLE,
             detail = 'Insufficient funds'
@@ -74,6 +92,7 @@ async def process_new_transaction(
     try:
         await db.commit()
     except IntegrityError:
+        db.rollback()
         raise HTTPException(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail = 'Failed to create transaction'
@@ -84,6 +103,7 @@ async def process_new_transaction(
         amount = db_transaction.amount,
         id = db_transaction.id
     )
+
 
 async def get_current_balance(
     wallet_state: WalletSchema,
