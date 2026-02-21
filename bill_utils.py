@@ -70,16 +70,18 @@ async def process_new_transaction(
             detail = 'Billing account not found'
         )
 
-    balance = await get_current_balance(wallet_state, db)
+# Если транзакция в плюс, то смысла контролировать овердрафт нет
+    if transaction_amount < 0:
+        balance = await get_current_balance(wallet_state, db)
 
-    new_balance = balance + transaction_amount
+        new_balance = balance + transaction_amount
 
-    if new_balance < 0:
-        db.rollback()
-        raise HTTPException(
-            status_code = status.HTTP_406_NOT_ACCEPTABLE,
-            detail = 'Insufficient funds'
-        )        
+        if new_balance < 0:
+            db.rollback()
+            raise HTTPException(
+                status_code = status.HTTP_406_NOT_ACCEPTABLE,
+                detail = 'Insufficient funds'
+            )        
     
     db_transaction = TransactionSchema(
         id = uuid4(),
