@@ -64,7 +64,7 @@ async def process_new_transaction(
     wallet_state = await get_wallet_by_username_for_update(username, db)
     
     if wallet_state is None:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
             detail = 'Billing account not found'
@@ -77,7 +77,7 @@ async def process_new_transaction(
         new_balance = balance + transaction_amount
 
         if new_balance < 0:
-            db.rollback()
+            await db.rollback()
             raise HTTPException(
                 status_code = status.HTTP_406_NOT_ACCEPTABLE,
                 detail = 'Insufficient funds'
@@ -94,7 +94,7 @@ async def process_new_transaction(
     try:
         await db.commit()
     except IntegrityError:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail = 'Failed to create transaction'
