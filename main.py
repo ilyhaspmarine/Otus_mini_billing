@@ -6,6 +6,7 @@ import bill_utils as utils
 from bill_db_schema import Wallet as WalletSchema
 from bill_db import _get_db
 from bill_models import WalletCreate, WalletReturn, TransactionCreate, TransactionReturn
+from uuid import UUID
 
 
 app = FastAPI(title="Billing Service", version="1.0.0")
@@ -43,6 +44,15 @@ async def transaction_create(
     db = Depends(_get_db)
 ):
     result = await utils.process_new_transaction(transaction.username, transaction.amount, db)
+    return result
+
+
+@app.post('/transaction/storno/{transaction_id}', summary = 'Create storno transaction', tags = ['Wallet', 'Transactions'], response_model = TransactionReturn, status_code = status.HTTP_201_CREATED)
+async def transaction_create(
+    transaction_id: UUID,
+    db = Depends(_get_db)
+):
+    result = await utils.process_storno_transaction(transaction_id, db)
     return result
 
 

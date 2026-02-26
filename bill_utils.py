@@ -5,7 +5,7 @@ from bill_db_schema import Wallet as WalletSchema, Transaction as TransactionSch
 from bill_models import WalletReturn, TransactionReturn
 from datetime import datetime
 from decimal import Decimal
-from uuid import uuid4
+from uuid import uuid4, UUID
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
@@ -113,3 +113,24 @@ async def get_current_balance(
 ):
     balance_delta = await get_balance_delta(wallet_state.username, wallet_state.actual_at, db)
     return wallet_state.balance + balance_delta
+
+
+async def process_storno_transaction(
+    transaction_id: UUID,
+    db: AsyncSession
+):
+    result = await db.execute(
+        select(TransactionSchema)
+        .filter(TransactionSchema.id == transaction_id)
+        .with_for_update()
+    )
+    transaction = result.scalar_one_or_none()
+    if transaction is None:
+        db.rollback()
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = 'Transaction not found'
+        )
+    amount = -transaction.amount
+    result = await process_new_transaction(transaction.username, amount, db)
+    return result
